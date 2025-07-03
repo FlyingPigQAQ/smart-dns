@@ -1,13 +1,9 @@
 ARG DEBIAN_IMAGE=debian:stable-slim
 ARG BASE=gcr.io/distroless/static-debian12:nonroot
-FROM golang:1.24 AS coredns-builder
+FROM golang:1.24 as coredns-builder
 COPY . /go/src/github.com/coredns/coredns
 WORKDIR /go/src/github.com/coredns/coredns
-#RUN go mod init && \
-#    go mod tidy
-RUN go env -w GO111MODULE=on && \
-    go env -w GOPROXY=https://goproxy.cn,direct
-RUN    go build github.com/coredns/coredns
+RUN go build -o coredns  .
 
 FROM  ${DEBIAN_IMAGE} AS build
 SHELL [ "/bin/sh", "-ec" ]
@@ -26,14 +22,6 @@ RUN setcap cap_net_bind_service=+ep /coredns
 FROM  ${DEBIAN_IMAGE}
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=build /coredns /coredns
-RUN export DEBCONF_NONINTERACTIVE_SEEN=true \
-           DEBIAN_FRONTEND=noninteractive \
-           DEBIAN_PRIORITY=critical \
-           TERM=linux ; \
-    apt-get -qq update ; \
-    apt-get -yyqq upgrade ; \
-    apt-get -yyqq install dnsutils; \
-    apt-get clean
 WORKDIR /
 EXPOSE 53 53/udp
 ENTRYPOINT ["/coredns"]
