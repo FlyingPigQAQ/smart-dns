@@ -2,12 +2,12 @@ ARG DEBIAN_IMAGE=debian:stable-slim
 ARG BASE=gcr.io/distroless/static-debian12:nonroot
 ARG TARGETOS
 ARG TARGETARCH
-FROM golang:1.24 AS coredns-builder
+FROM golang:1.23 AS coredns-builder
 COPY . /go/src/github.com/coredns/coredns
 WORKDIR /go/src/github.com/coredns/coredns
 
-RUN go env -w GO111MODULE=on
-#    go env -w GOPROXY=https://goproxy.cn,direct
+RUN go env -w GO111MODULE=on && \
+    go env -w GOPROXY=https://goproxy.cn,direct
 #RUN  GOOS=${TARGETOS} GOARCH=${TARGETARCH}  go build github.com/coredns/coredns
 
 RUN  GOOS=${TARGETOS} GOARCH=${TARGETARCH}  go build -o coredns  .
