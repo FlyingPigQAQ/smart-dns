@@ -11,7 +11,8 @@ RUN go env -w GO111MODULE=on && \
     go env -w GOPROXY=https://goproxy.cn,direct
 #RUN  GOOS=${TARGETOS} GOARCH=${TARGETARCH}  go build github.com/coredns/coredns
 
-RUN  GOOS=${TARGETOS} GOARCH=${TARGETARCH} GOARM=${TARGETVARIANT#v}  go build -o coredns  .
+RUN  #GOOS=${TARGETOS} GOARCH=${TARGETARCH} GOARM=${TARGETVARIANT#v}  go build -o coredns  .
+RUN  GOOS=${TARGETOS} GOARCH=${TARGETARCH}   go build -o coredns  .
 
 FROM  ${DEBIAN_IMAGE} AS build
 SHELL [ "/bin/sh", "-ec" ]
